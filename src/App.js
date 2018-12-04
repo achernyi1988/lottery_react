@@ -12,6 +12,7 @@ export default class App extends Component {
         super(props);
         this.state =  {
             manager : "",
+            winner:   "???",
             players: [] ,
             balance: "",
             value:"",
@@ -20,7 +21,7 @@ export default class App extends Component {
     }
     onEnter = async (event) =>{
         event.preventDefault();
-
+        this.setState({winner: "???"});
         const accounts = await web3.eth.getAccounts();
 
         this.setState({message: "waiting on transaction success ..."});
@@ -52,10 +53,12 @@ export default class App extends Component {
 
     updateStates = async() => {
         const manager = await lottery.methods.manager().call();
+        const winner = await lottery.methods.winner().call();
         const players = await lottery.methods.getPlayers().call();
         const balance = await web3.eth.getBalance(lottery.options.address);
-        this.setState({manager, players, balance});
+        this.setState({manager, winner, players, balance});
     }
+
   render() {
       return (
     <div>
@@ -63,7 +66,7 @@ export default class App extends Component {
         <p>  This contract is managed by {this.state.manager}
         <br></br> There are currently {this.state.players.length} people entered
             competing to win {web3.utils.fromWei(this.state.balance, "ether")} ether!
-
+            <br></br> players = { this.state.players.map(function(player){ return ( <p>  {player} </p>); })}
         </p>
         <hr/>
         <form onSubmit={this.onEnter}>
@@ -84,6 +87,8 @@ export default class App extends Component {
 
         <h1> {this.state.message}</h1>
 
+        <h4>The winner is {this.state.winner}</h4>
+        <hr/>
     </div>
     );
   }
